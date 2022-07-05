@@ -1,5 +1,6 @@
 import json
 
+import gevent
 from locust import User, task, events, constant, between, TaskSet
 import time
 import websocket
@@ -69,6 +70,24 @@ class UserTask(TaskSet):
         self.url = f"ws://ailearn-instruction-proxy-svr.ailearn.ink/socket.io/?systemId={self.userId}&loginType=3&token=123&userType=1&tty=1&transport=websocket"
         self.data = {}
         self.client.connect(self.url)
+
+        def _receive():
+            while True:
+                res = self.client.recv()
+                #data = json.loads(res)
+                end_at = time.time()
+                #response_time = int((end_at - data['start_at']) * 1000000)
+                print(res)
+                # request_success.fire(
+                #     request_type='WebSocket Recv',
+                #     name='test/ws/chat',
+                #     response_time=response_time,
+                #     response_length=len(res),
+                # )
+
+        gevent.spawn(_receive)
+
+
         print(f"on_start running, userId:{self.userId}")
 
         data = {
@@ -78,17 +97,19 @@ class UserTask(TaskSet):
         self.client.send(json.dumps(data))
 
 
+
     @task
     def queryNodeInfo(self):
         msgstr = '42["my_event",{"cmd":"async3_sleep", "sleep":100, "myId": "sssaaa123"}]'
+        print("queryNodeInfo")
         self.client.send(msgstr)
 
 
 class ApiUser(WebsocketUser):
     tasks = [UserTask]
-    wait_time = between(0.1, 0.1)
+    wait_time = between(1, 1)
 
 
 
-# locust -f locust_test3.py -u 50 -r 300
-# locust -f locust_test3.py --autostart --autoquit 0 -u 1 -r 3 --run-time 10s
+# locust_samples -f locust_test3.py -u 50 -r 300
+# locust_samples -f locust_test3.py --autostart --autoquit 0 -u 1 -r 3 --run-time 10s

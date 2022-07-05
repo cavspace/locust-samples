@@ -1,4 +1,4 @@
-from locust import User, task, events, constant, between
+from locust_samples import User, task, events, constant, between
 import time
 import websocket
 import ssl
@@ -76,5 +76,5 @@ class ApiUser(WebsocketUser):
 
 
 
-# locust -f locust_test3.py -u 50 -r 300
-# locust -f locust_test3.py --autostart --autoquit 0 -u 1 -r 3 --run-time 10s
+# locust_samples -f locust_test3.py -u 50 -r 300
+# locust_samples -f locust_test3.py --autostart --autoquit 0 -u 1 -r 3 --run-time 10s
